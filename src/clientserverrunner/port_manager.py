@@ -1,7 +1,6 @@
 """Port management for ClientServerRunner."""
 
 import socket
-from typing import Dict
 
 from .utils.logging import setup_logger
 
@@ -13,7 +12,7 @@ class PortManager:
 
     def __init__(self) -> None:
         """Initialize the port manager."""
-        self._allocated_ports: Dict[str, int] = {}
+        self._allocated_ports: dict[str, int] = {}
 
     def allocate_port(self, app_id: str, requested_port: int | None = None) -> int:
         """Allocate a port for an application.
@@ -113,6 +112,6 @@ class PortManager:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 sock.bind(("127.0.0.1", 0))
                 _, port = sock.getsockname()
-            return port
+            return int(port)
         except OSError as e:
             raise OSError(f"Failed to allocate dynamic port: {e}") from e

@@ -44,10 +44,7 @@ def main() -> None:
 
     # Start MCP server
     logger.info("Starting ClientServerRunner MCP server...")
-    logger.info(
-        "Use with Claude Code or other MCP clients. "
-        "Add to MCP settings configuration."
-    )
+    logger.info("Use with Claude Code or other MCP clients. " "Add to MCP settings configuration.")
 
     try:
         mcp.run()

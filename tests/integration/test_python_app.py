@@ -38,9 +38,7 @@ class TestPythonApplication:
 
         try:
             # Start the application
-            result = process_manager.start_application(
-                config.id, "server", handler_registry
-            )
+            result = process_manager.start_application(config.id, "server", handler_registry)
             assert result.success
             assert result.pid is not None
 
@@ -94,9 +92,7 @@ class TestPythonApplication:
 
         try:
             # Start the application
-            result = process_manager.start_application(
-                config.id, "server", handler_registry
-            )
+            result = process_manager.start_application(config.id, "server", handler_registry)
             assert result.success
 
             time.sleep(2)

@@ -10,9 +10,9 @@ class TestPortManager:
 
     def test_allocate_fixed_port(self, port_manager: PortManager):
         """Test allocating a fixed port."""
-        port = port_manager.allocate_port("app1", 8888)
-        assert port == 8888
-        assert port_manager.get_allocated_port("app1") == 8888
+        port = port_manager.allocate_port("app1", 58888)
+        assert port == 58888
+        assert port_manager.get_allocated_port("app1") == 58888
 
         port_manager.release_port("app1")
 
@@ -27,20 +27,20 @@ class TestPortManager:
 
     def test_duplicate_port_allocation(self, port_manager: PortManager):
         """Test that allocating same port twice fails."""
-        port_manager.allocate_port("app1", 8888)
+        port_manager.allocate_port("app1", 58888)
 
         with pytest.raises(ValueError, match="already allocated"):
-            port_manager.allocate_port("app2", 8888)
+            port_manager.allocate_port("app2", 58888)
 
         port_manager.release_port("app1")
 
     def test_release_port(self, port_manager: PortManager):
         """Test releasing a port."""
-        port = port_manager.allocate_port("app1", 8888)
-        assert port_manager.is_port_allocated(8888)
+        _port = port_manager.allocate_port("app1", 58888)
+        assert port_manager.is_port_allocated(58888)
 
         port_manager.release_port("app1")
-        assert not port_manager.is_port_allocated(8888)
+        assert not port_manager.is_port_allocated(58888)
         assert port_manager.get_allocated_port("app1") is None
 
     def test_multiple_dynamic_ports(self, port_manager: PortManager):

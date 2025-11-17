@@ -3,8 +3,7 @@
 import json
 import uuid
 from datetime import datetime
-from pathlib import Path
-from typing import Dict
+from typing import Any
 
 from .models import Configuration, ConfigurationSummary, ServerConfig
 from .utils.logging import setup_logger
@@ -24,12 +23,12 @@ class ConfigManager:
         self.server_config = server_config
         self.config_dir = server_config.data_dir / "configurations"
         self.config_dir.mkdir(parents=True, exist_ok=True)
-        self._cache: Dict[str, Configuration] = {}
+        self._cache: dict[str, Configuration] = {}
 
     def create_configuration(
         self,
         name: str,
-        applications: list[dict],
+        applications: list[dict[str, Any]],
         description: str | None = None,
     ) -> Configuration:
         """Create a new configuration.
@@ -131,7 +130,7 @@ class ConfigManager:
     def update_configuration(
         self,
         config_id: str,
-        updates: dict,
+        updates: dict[str, Any],
     ) -> Configuration:
         """Update a configuration.
 

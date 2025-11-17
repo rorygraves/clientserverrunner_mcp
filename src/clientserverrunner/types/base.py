@@ -1,7 +1,6 @@
 """Base application type handler interface."""
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 from ..models import ApplicationInstance, CommandResult
 
@@ -24,7 +23,6 @@ class ApplicationHandler(ABC):
         Returns:
             Command to execute
         """
-        pass
 
     @abstractmethod
     def run_custom_command(
@@ -45,7 +43,6 @@ class ApplicationHandler(ABC):
         Returns:
             Command result
         """
-        pass
 
     @abstractmethod
     def supports_reload(self, app: ApplicationInstance) -> bool:
@@ -57,7 +54,6 @@ class ApplicationHandler(ABC):
         Returns:
             True if reload is supported
         """
-        pass
 
     @abstractmethod
     def trigger_reload(self, app: ApplicationInstance) -> tuple[bool, str]:
@@ -69,7 +65,6 @@ class ApplicationHandler(ABC):
         Returns:
             Tuple of (success, message)
         """
-        pass
 
 
 class HandlerRegistry:

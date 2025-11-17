@@ -326,8 +326,7 @@ class LogManager:
         size_mb = log_path.stat().st_size / (1024 * 1024)
         if size_mb >= self.server_config.log_max_size_mb:
             logger.warning(
-                f"Log file {log_path} exceeds max size "
-                f"({size_mb:.1f} MB), rotating..."
+                f"Log file {log_path} exceeds max size " f"({size_mb:.1f} MB), rotating..."
             )
             # Close current file
             log_key = f"{config_id}/{app_id}"

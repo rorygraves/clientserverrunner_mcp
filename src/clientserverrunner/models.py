@@ -3,7 +3,6 @@
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -111,9 +110,7 @@ class Configuration(BaseModel):
     id: str = Field(description="Unique identifier")
     name: str = Field(description="Human-readable name")
     description: str | None = Field(default=None, description="Optional description")
-    applications: list[ApplicationInstance] = Field(
-        description="List of application instances"
-    )
+    applications: list[ApplicationInstance] = Field(description="List of application instances")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 

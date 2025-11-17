@@ -1,23 +1,21 @@
 """Process management for ClientServerRunner."""
 
-import asyncio
 import os
 import signal
 import subprocess
 import threading
 import time
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import httpx
-import psutil
 
 from .config_manager import ConfigManager
 from .log_manager import LogManager
 from .models import (
-    AppState,
     ApplicationInstance,
     ApplicationStatus,
+    AppState,
     HealthCheckType,
     HealthStatus,
     StartResult,
@@ -48,12 +46,12 @@ class ProcessManager:
         self.config_manager = config_manager
         self.log_manager = log_manager
         self.port_manager = port_manager
-        self._processes: Dict[str, subprocess.Popen[bytes]] = {}
-        self._status: Dict[str, ApplicationStatus] = {}
-        self._log_threads: Dict[str, threading.Thread] = {}
-        self._stop_events: Dict[str, threading.Event] = {}
-        self._restart_counts: Dict[str, int] = {}
-        self._restart_timestamps: Dict[str, list[float]] = {}
+        self._processes: dict[str, subprocess.Popen[bytes]] = {}
+        self._status: dict[str, ApplicationStatus] = {}
+        self._log_threads: dict[str, list[threading.Thread]] = {}
+        self._stop_events: dict[str, threading.Event] = {}
+        self._restart_counts: dict[str, int] = {}
+        self._restart_timestamps: dict[str, list[float]] = {}
 
     def start_application(
         self,
@@ -110,9 +108,7 @@ class ProcessManager:
             # Allocate port if needed
             allocated_port = None
             if app.port is not None or app.port_env_var is not None:
-                allocated_port = self.port_manager.allocate_port(
-                    f"{config_id}/{app_id}", app.port
-                )
+                allocated_port = self.port_manager.allocate_port(f"{config_id}/{app_id}", app.port)
                 if app.port_env_var:
                     env[app.port_env_var] = str(allocated_port)
 
@@ -166,16 +162,15 @@ class ProcessManager:
                     pid=process.pid,
                     allocated_port=allocated_port,
                 )
-            else:
-                self._status[status_key].state = AppState.FAILED
-                self._status[status_key].health = HealthStatus.UNHEALTHY
-                self._status[status_key].error_message = "Startup health check failed"
-                return StartResult(
-                    app_id=app_id,
-                    success=False,
-                    message="Application started but health check failed",
-                    pid=process.pid,
-                )
+            self._status[status_key].state = AppState.FAILED
+            self._status[status_key].health = HealthStatus.UNHEALTHY
+            self._status[status_key].error_message = "Startup health check failed"
+            return StartResult(
+                app_id=app_id,
+                success=False,
+                message="Application started but health check failed",
+                pid=process.pid,
+            )
 
         except Exception as e:
             logger.error(f"Failed to start {config_id}/{app_id}: {e}")
@@ -547,9 +542,9 @@ class ProcessManager:
         try:
             if app.health_check.type == HealthCheckType.HTTP:
                 return self._check_http_health(app)
-            elif app.health_check.type == HealthCheckType.TCP:
+            if app.health_check.type == HealthCheckType.TCP:
                 return self._check_tcp_health(app)
-            elif app.health_check.type == HealthCheckType.PROCESS:
+            if app.health_check.type == HealthCheckType.PROCESS:
                 return HealthStatus.HEALTHY  # Process check done in wait_for_startup
 
         except Exception as e:

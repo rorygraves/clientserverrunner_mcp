@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from clientserverrunner.config_manager import ConfigManager
-from clientserverrunner.models import ServerConfig
 
 
 class TestConfigManager:
