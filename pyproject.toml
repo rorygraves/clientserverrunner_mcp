@@ -5,7 +5,6 @@ description = "MCP server for managing multi-application lifecycle"
 authors = ["ClientServerRunner Contributors"]
 readme = "README.md"
 packages = [{include = "clientserverrunner", from = "src"}]
-requires-python = ">=3.12"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -61,14 +60,33 @@ select = [
     "RUF",    # ruff-specific rules
 ]
 ignore = [
+    "ISC001",  # Conflicts with ruff formatter
     "PLR0913", # Too many arguments to function call
     "PLR2004", # Magic value used in comparison
+    "PLR0911", # Too many return statements
+    "EM101",   # Exception must not use string literal
+    "EM102",   # Exception must not use f-string literal
+    "PTH123",  # Use Path.open() instead of open()
+    "SIM102",  # Use single if statement (nested ifs are more readable)
+    "SIM105",  # Use contextlib.suppress (explicit is better)
+    "SIM115",  # Use context manager (intentional for file handles)
+    "DTZ005",  # datetime.now() without timezone (not needed for local times)
+    "DTZ007",  # datetime.strptime without timezone (not needed for parsing)
+    "RET504",  # Unnecessary assignment before return (can be clearer)
+    "RUF005",  # List concatenation (more readable than unpacking in some cases)
+    "SIM108",  # Ternary operator (if-else is more readable)
+    "PLW0603", # Global statement (necessary for FastMCP globals)
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "PLR2004",  # Magic values are ok in tests
     "S101",     # Assert is ok in tests
+    "PT011",    # pytest.raises too broad is ok in tests
+    "SIM105",   # contextlib.suppress is ok but not required
+]
+"tests/fixtures/**/*.py" = [
+    "N802",     # Function names in test fixtures can match external APIs
 ]
 
 [tool.mypy]
@@ -94,6 +112,10 @@ strict_concatenate = true
 [[tool.mypy.overrides]]
 module = "fastmcp.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "clientserverrunner.server"
+disallow_untyped_decorators = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

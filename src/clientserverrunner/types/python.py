@@ -2,7 +2,6 @@
 
 import subprocess
 import time
-from pathlib import Path
 
 from ..models import ApplicationInstance, CommandResult
 from ..utils.logging import setup_logger

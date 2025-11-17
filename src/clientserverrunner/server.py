@@ -176,8 +176,7 @@ def update_configuration(
         status = process_manager.get_status(config_id, app.id)
         if status.state.value in ["starting", "running", "stopping"]:
             raise ValueError(
-                f"Cannot update configuration with running applications. "
-                f"Stop '{app.id}' first."
+                f"Cannot update configuration with running applications. " f"Stop '{app.id}' first."
             )
 
     updated = config_manager.update_configuration(config_id, updates)
@@ -212,8 +211,8 @@ def delete_configuration(
         status = process_manager.get_status(config_id, app.id)
         if status.state.value != "stopped":
             raise ValueError(
-                f"Cannot delete configuration with running applications. "
-                f"Use force=true to stop them first."
+                "Cannot delete configuration with running applications. "
+                "Use force=true to stop them first."
             )
 
     config_manager.delete_configuration(config_id)
@@ -263,12 +262,8 @@ def start_configuration(
         results.append(result.model_dump())
 
         # If startup failed and this is a dependency, stop here
-        if not result.success and any(
-            app.id in other.depends_on for other in sorted_apps
-        ):
-            logger.error(
-                f"Failed to start dependency '{app.id}', " f"stopping startup sequence"
-            )
+        if not result.success and any(app.id in other.depends_on for other in sorted_apps):
+            logger.error(f"Failed to start dependency '{app.id}', stopping startup sequence")
             break
 
     return results
@@ -421,9 +416,7 @@ def search_logs(
         >>> # Search for specific HTTP status
         >>> search_logs("my-webapp", "backend", "status.*404")
     """
-    results = log_manager.search_logs(
-        config_id, app_id, query, max_results, case_sensitive, run_id
-    )
+    results = log_manager.search_logs(config_id, app_id, query, max_results, case_sensitive, run_id)
     return [result.model_dump() for result in results]
 
 
@@ -493,7 +486,8 @@ def run_command(
     env = process_manager._prepare_environment(config_id, app, config)
 
     result = handler.run_custom_command(app, command, args or [], env)
-    return result.model_dump()
+    result_dict: dict[str, Any] = result.model_dump()
+    return result_dict
 
 
 @mcp.tool()
@@ -548,7 +542,7 @@ def _topological_sort_apps(
     # Build dependency graph
     app_map = {app.id: app for app in all_apps}
     in_degree = {app.id: 0 for app in apps_to_sort}
-    adj_list = {app.id: [] for app in apps_to_sort}
+    adj_list: dict[str, list[str]] = {app.id: [] for app in apps_to_sort}
 
     for app in apps_to_sort:
         for dep_id in app.depends_on:
