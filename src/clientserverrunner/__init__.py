@@ -1,0 +1,5 @@
+"""ClientServerRunner - MCP server for managing multi-application configurations."""
+
+__version__ = "1.0.0"
+
+__all__ = ["__version__"]
