@@ -111,6 +111,9 @@ class ApplicationInstance:
     health_check: HealthCheck | None # Health check configuration
     auto_restart: bool               # Restart on failure
     startup_timeout: int             # Seconds to wait for startup
+    depends_on: List[str]            # List of app IDs that must start first
+    port: int | None                 # Fixed port, or None for dynamic
+    port_env_var: str | None         # Env var name to receive allocated port
 ```
 
 ### HealthCheck (Pydantic)
@@ -312,9 +315,11 @@ Returns: Reload status
 
 ### GitHub Actions Workflow
 - Lint: Ruff check
-- Type check: MyPy
+- Format check: Ruff format --check
+- Type check: MyPy strict mode
 - Tests: pytest with coverage
-- Matrix: Python 3.11, 3.12
+- Matrix: Python 3.12, 3.13
+- Coverage threshold: 85%
 - Cache: Poetry dependencies
 
 ## Documentation
@@ -329,20 +334,41 @@ Returns: Reload status
 - Type hints: All function signatures
 - Comments: Complex logic only
 
-## Open Questions
+## Design Decisions
 
-1. **Process ownership**: Should the MCP server run as a supervisor (keep processes as children) or spawn independent processes?
+### 1. Process Management: Supervisor Model ✓
+The MCP server runs as a supervisor, keeping application processes as children. When the MCP server stops or fails, all managed processes are automatically terminated. This ensures clean shutdown and prevents orphaned processes.
 
-2. **Port management**: Should the server automatically detect and assign ports, or require manual configuration?
+### 2. Configuration Format: JSON ✓
+Configurations are stored as JSON files for machine-friendliness and native Pydantic support. JSON provides good balance between human-readability and programmatic manipulation.
 
-3. **Security**: Should there be any sandboxing or restrictions on what commands can be run?
+### 3. Startup Dependencies: Ordered Startup with Health Checks ✓
+Support `depends_on` field in application configurations to specify startup order. Each application can wait for dependencies to pass health checks before starting.
 
-4. **Configuration format**: JSON (easy to edit) vs YAML (more readable) vs Python (programmable)?
+### 4. Port Management: Hybrid Approach ✓
+- Support hardcoded ports in configuration (for known services)
+- Support dynamic port allocation using port 0 (OS assigns)
+- Allow port passing between services via environment variables
+- Example: Backend gets dynamic port, frontend receives it via `BACKEND_PORT` env var
 
-5. **Inter-app dependencies**: Should we support startup ordering (e.g., backend before frontend)?
+### 5. Security: Trusted Environment ✓
+No sandboxing or command restrictions initially. The MCP server trusts the agent and user. Security features may be added in future versions.
 
-6. **Resource limits**: Should we support CPU/memory limits per application?
+### 6. Log Retention: Configurable with Sensible Defaults ✓
+- Default: Keep last 10 runs per application
+- Configurable: Override globally or per-application
+- Support querying logs from previous runs via MCP methods
+- Archive logs with timestamps on each restart
 
-7. **Networking**: Should we support setting up local networking (docker-compose style)?
+### 7. Python Version: 3.12+ ✓
+Target Python 3.12+ for modern type hints, performance improvements, and latest language features.
 
-8. **Notifications**: Should the server support webhooks or other notifications for state changes?
+## Future Enhancements
+
+These features are out of scope for initial version but may be added later:
+- Resource limits (CPU/memory per application)
+- Docker-compose style networking
+- Webhooks/notifications for state changes
+- Command sandboxing and security restrictions
+- YAML configuration support
+- Web UI for monitoring

@@ -1,0 +1,51 @@
+{
+  "name": "fullstack-webapp",
+  "description": "Example full-stack web application with FastAPI backend and React frontend",
+  "applications": [
+    {
+      "id": "backend",
+      "name": "FastAPI Backend",
+      "app_type": "python",
+      "working_dir": "/path/to/backend",
+      "command": "uvicorn main:app --reload --port 8000",
+      "env": {
+        "DATABASE_URL": "postgresql://localhost/myapp",
+        "SECRET_KEY": "your-secret-key"
+      },
+      "build_command": null,
+      "health_check": {
+        "type": "http",
+        "url": "http://localhost:8000/health",
+        "interval": 5,
+        "timeout": 3
+      },
+      "auto_restart": true,
+      "startup_timeout": 30,
+      "depends_on": [],
+      "port": 8000,
+      "port_env_var": null
+    },
+    {
+      "id": "frontend",
+      "name": "React Frontend",
+      "app_type": "npm",
+      "working_dir": "/path/to/frontend",
+      "command": "npm run dev",
+      "env": {
+        "VITE_API_URL": "http://localhost:8000"
+      },
+      "build_command": null,
+      "health_check": {
+        "type": "tcp",
+        "port": 5173,
+        "interval": 5,
+        "timeout": 3
+      },
+      "auto_restart": false,
+      "startup_timeout": 60,
+      "depends_on": ["backend"],
+      "port": 5173,
+      "port_env_var": null
+    }
+  ]
+}

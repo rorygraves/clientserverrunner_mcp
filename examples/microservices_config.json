@@ -1,0 +1,89 @@
+{
+  "name": "microservices",
+  "description": "Example microservices architecture with multiple backends",
+  "applications": [
+    {
+      "id": "auth-service",
+      "name": "Authentication Service",
+      "app_type": "python",
+      "working_dir": "/path/to/auth-service",
+      "command": "uvicorn app:app --reload",
+      "env": {
+        "JWT_SECRET": "your-jwt-secret"
+      },
+      "health_check": {
+        "type": "http",
+        "url": "http://localhost:0/health",
+        "interval": 5,
+        "timeout": 3
+      },
+      "auto_restart": true,
+      "startup_timeout": 30,
+      "depends_on": [],
+      "port": 0,
+      "port_env_var": "PORT"
+    },
+    {
+      "id": "user-service",
+      "name": "User Service",
+      "app_type": "scala",
+      "working_dir": "/path/to/user-service",
+      "command": "sbt ~run",
+      "env": {},
+      "build_command": "sbt compile",
+      "health_check": {
+        "type": "http",
+        "url": "http://localhost:0/health",
+        "interval": 5,
+        "timeout": 3
+      },
+      "auto_restart": true,
+      "startup_timeout": 120,
+      "depends_on": ["auth-service"],
+      "port": 0,
+      "port_env_var": "HTTP_PORT"
+    },
+    {
+      "id": "api-gateway",
+      "name": "API Gateway",
+      "app_type": "npm",
+      "working_dir": "/path/to/api-gateway",
+      "command": "npm run dev",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "health_check": {
+        "type": "tcp",
+        "port": 3000,
+        "interval": 5,
+        "timeout": 3
+      },
+      "auto_restart": true,
+      "startup_timeout": 45,
+      "depends_on": ["auth-service", "user-service"],
+      "port": 3000,
+      "port_env_var": null
+    },
+    {
+      "id": "frontend",
+      "name": "Web Frontend",
+      "app_type": "npm",
+      "working_dir": "/path/to/frontend",
+      "command": "npm run dev",
+      "env": {
+        "VITE_GATEWAY_URL": "http://localhost:3000"
+      },
+      "health_check": {
+        "type": "tcp",
+        "port": 5173,
+        "interval": 5,
+        "timeout": 3
+      },
+      "auto_restart": false,
+      "startup_timeout": 60,
+      "depends_on": ["api-gateway"],
+      "port": 5173,
+      "port_env_var": null
+    }
+  ]
+}
